@@ -109,14 +109,13 @@ class UserService {
             try {
                 const userInfo  =   this.userInfo(token);
                 const session = await getSession
-                const results = await session.getSchema('elem').getTable('online_users')
+                await session.getSchema('elem').getTable('online_users')
                     .delete()
                     .where('userId = :userId')
-                    .bind('userId', userInfo.userId)
+                    .bind('userId', userInfo.id)
                     .execute();
 
-                console.log(results)
-                return Promise.resolve(results);
+                return Promise.resolve(true);
             } catch (e) {
                 console.log(e)
                 return Promise.reject(e);

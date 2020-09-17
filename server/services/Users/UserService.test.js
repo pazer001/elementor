@@ -44,7 +44,7 @@ describe('actions', () => {
     test('logoutUser Positive', async () => {
         const {token} = await userService.loginUser(email, password)
         const results = await userService.logoutUser(token);
-console.log(results)
-        expect(results.length).toBeGreaterThanOrEqual(1);
+
+        expect(results).toBe(true);
     });
 })

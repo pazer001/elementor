@@ -44,12 +44,17 @@ class UserService {
                 .bind('password', password)
                 .execute();
 
-            
+            const user  =   row.fetchOne();
 
-            const data  =   row.fetchOne();
+            session.getSchema('elem').getTable('online_users')
+                .insert(['userId', 'online'])
+                .values([user[0], 1])
+                .execute();
+
+
             const payload   =   {
-                email: data[1],
-                role: data[3]
+                email: user[1],
+                role: user[3]
             }
 
             const token = jwt.sign(payload, config.jwtSecret);

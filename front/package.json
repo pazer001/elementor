@@ -1,0 +1,16 @@
+{
+  "name": "front",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "node_modules/.bin/jest"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "dotenv": "^8.2.0",
+    "eslint": "^7.9.0",
+    "jest": "^26.4.2"
+  }
+}

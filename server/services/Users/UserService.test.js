@@ -1,7 +1,7 @@
 require('dotenv').config();
 const faker = require('faker');
-const UserService  =   require('./UserService');
-const userService   =   new UserService();
+const UserService = require('./UserService');
+const userService = new UserService();
 
 const email = 'paz@paz.com';
 const password = '3ds21cds3c51';
@@ -28,8 +28,8 @@ describe('actions', () => {
     });
 
     test('userInfo Positive', async () => {
-        const {token}   =   await userService.loginUser(email, password)
-        const userInfo  =   await userService.userInfo(token);
+        const {token} = await userService.loginUser(email, password)
+        const userInfo = userService.userInfo(token);
 
         expect(userInfo.email).toBe(email);
     });

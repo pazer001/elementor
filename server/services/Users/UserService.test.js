@@ -33,4 +33,18 @@ describe('actions', () => {
 
         expect(userInfo.email).toBe(email);
     });
+
+    test('onlineUsers Positive', async () => {
+        const {token} = await userService.loginUser(email, password)
+        const results = await userService.onlineUsers(token);
+
+        expect(results.length).toBeGreaterThanOrEqual(1);
+    });
+
+    test('logoutUser Positive', async () => {
+        const {token} = await userService.loginUser(email, password)
+        const results = await userService.logoutUser(token);
+console.log(results)
+        expect(results.length).toBeGreaterThanOrEqual(1);
+    });
 })

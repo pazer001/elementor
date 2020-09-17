@@ -1,12 +1,15 @@
 require('dotenv').config();
 const faker = require('faker');
+const jwt = require('jsonwebtoken');
+const config = require('../../config');
 const UserService = require('./UserService');
 const userService = new UserService();
+
 
 const email = 'paz@paz.com';
 const password = '3ds21cds3c51';
 
-describe('actions', () => {
+describe('UserService', () => {
     test('createUser Positive', async () => {
         const email = faker.internet.email();
         const password = faker.internet.password();
@@ -29,21 +32,22 @@ describe('actions', () => {
 
     test('userInfo Positive', async () => {
         const {token} = await userService.loginUser(email, password)
-        const userInfo = userService.userInfo(token);
+        const user = jwt.verify(token, config.jwtSecret)
+        const userInfo = userService.userInfo(user);
 
         expect(userInfo.email).toBe(email);
     });
 
     test('onlineUsers Positive', async () => {
-        const {token} = await userService.loginUser(email, password)
-        const results = await userService.onlineUsers(token);
+        const results = await userService.onlineUsers();
 
         expect(results.length).toBeGreaterThanOrEqual(1);
     });
 
     test('logoutUser Positive', async () => {
-        const {token} = await userService.loginUser(email, password)
-        const results = await userService.logoutUser(token);
+        const {token} = await userService.loginUser(email, password);
+        const user = jwt.verify(token, config.jwtSecret)
+        const results = await userService.logoutUser(user);
 
         expect(results).toBe(true);
     });

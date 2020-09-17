@@ -1,10 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="stylesheet" href="style/index.css">
     <meta charset="UTF-8">
     <title>Title</title>
 </head>
 <body>
-
+<main>
+    <section class="page hide" id="welcome">
+        <article class="box login-wrapper">
+            <h2>Login</h2>
+            <div>
+                <label for="login-email"></label><input id="login-email" placeholder="Email"/>
+            </div>
+            <div>
+                <label for="login-password"></label><input id="login-password" placeholder="Password"/>
+            </div>
+            <div>
+                <button id="login-button">Login</button>
+            </div>
+        </article>
+        <article class="box register-wrapper">
+            <h2>Register</h2>
+            <div>
+                <label for="register-email"></label><input id="register-email" placeholder="Email"/>
+            </div>
+            <div>
+                <label for="register-password"></label><input id="register-password" placeholder="Password"/>
+            </div>
+            <div>
+                <button id="register-button">Register</button>
+            </div>
+        </article>
+    </section>
+    <section class="page hide" id="main">
+        main
+    </section>
+</main>
 </body>
+<script src="script/index.js"></script>
 </html>

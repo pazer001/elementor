@@ -5,7 +5,6 @@ const HOST = window.HOST;
 const VERSION = window.VERSION;
 
 const appHandler = {
-    state: {},
     helpers: {
         urlBuild: (path) => {
             return `${PROTOCOL}://${HOST}/${VERSION}/${path}`;
@@ -25,11 +24,12 @@ const appHandler = {
         onLoadPageEvent: async (pageName) => {
             switch (pageName) {
                 case `main`:
-                    const userInfoResults   =   await appHandler.actions.userInfo();
-                    const userInfoElm   =   document.getElementById(`user`);
-                    userInfoElm.innerText = `Hello ${userInfoResults.email}`;
-                    userInfoElm.classList.add(`show`);
-                    userInfoElm.classList.remove(`hide`);
+                    const userInfoResults = await appHandler.actions.userInfo();
+                    const userElm = document.getElementById(`user`);
+                    userElm.innerText = `Hello ${userInfoResults.email}`;
+                    const infoElm   =   document.getElementById(`info`)
+                    infoElm.classList.add(`show`);
+                    infoElm.classList.remove(`hide`);
 
             }
         },
@@ -58,6 +58,13 @@ const appHandler = {
                 appHandler.actions.hideAlert();
                 appHandler.actions.showPage(`main`);
             })
+
+            const logoutButton = document.getElementById(`logout`);
+            logoutButton.addEventListener(`click`, async (event) => {
+                event.preventDefault();
+                await appHandler.actions.logoutUser();
+                appHandler.actions.showPage(`welcome`);
+            })
         },
         showPage: (pageName) => {
             pages.forEach(page => {
@@ -71,6 +78,7 @@ const appHandler = {
             const pageElm = document.getElementById(pageName)
             pageElm.classList.remove('hide')
             pageElm.classList.add('show')
+            appHandler.actions.hideAlert();
             appHandler.actions.onLoadPageEvent(pageName);
         },
         showAlert(message) {
@@ -121,6 +129,29 @@ const appHandler = {
                 }
                 localStorage.setItem(`token`, loginUserResultsJson.token);
                 return Promise.resolve(loginUserResultsJson);
+            } catch (e) {
+                appHandler.actions.showAlert(`An error occurred`);
+                console.error(e);
+                return Promise.reject(e);
+            }
+        },
+        logoutUser: async (email, password) => {
+            try {
+                const logoutUserResults = await fetch(appHandler.helpers.urlBuild(`users/logout`), {
+                    method: `POST`,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'authorization': `bearer ${localStorage.getItem(`token`)}`
+                    }
+                })
+                const logoutUserResultsJson = await logoutUserResults.json();
+                if (logoutUserResults.status >= 400) {
+                    console.error(logoutUserResultsJson.message);
+                    appHandler.actions.showAlert(logoutUserResultsJson.message);
+                    return Promise.reject(logoutUserResultsJson);
+                }
+                localStorage.removeItem(`token`);
+                return Promise.resolve(logoutUserResultsJson);
             } catch (e) {
                 appHandler.actions.showAlert(`An error occurred`);
                 console.error(e);

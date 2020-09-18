@@ -2,14 +2,12 @@ html, body {
     height: 100%;
 }
 
-.page.hide {
-    display: none;
-}
 
-.page.show {
-    display: flex;
+#alert {
+    background-color: indianred;
+    color: white;
+    text-align: center;
 }
-
 
 #welcome {
     display: flex;
@@ -17,6 +15,14 @@ html, body {
     align-items: center;
     height: 100%;
     min-height: 100vh;
+}
+
+.hide {
+    display: none!important;
+}
+
+.show {
+    display: block;
 }
 
 .box {

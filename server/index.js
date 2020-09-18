@@ -3,11 +3,13 @@ const express = require(`express`);
 const bodyParser = require('body-parser');
 const config = require('./config');
 const jwt = require('jsonwebtoken');
+const cors  =   require('cors');
 const UserService = require('./services/Users/UserService');
 const PORT = config.server.port;
 
 const app = express();
 app.use(bodyParser.json());
+app.use(cors());
 
 const userService = new UserService();
 

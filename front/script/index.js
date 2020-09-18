@@ -127,28 +127,6 @@ const appHandler = {
                 return Promise.reject(e);
             }
         },
-            try {
-                const loginUserResults = await fetch(appHandler.helpers.urlBuild(`oauth/token`), {
-                    method: `POST`,
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({email, password})
-                })
-                const loginUserResultsJson = await loginUserResults.json();
-                if (loginUserResults.status >= 400) {
-                    console.error(loginUserResultsJson.message);
-                    appHandler.actions.showAlert(loginUserResultsJson.message);
-                    return Promise.reject(loginUserResultsJson);
-                }
-                localStorage.setItem(`token`, loginUserResultsJson.token);
-                return Promise.resolve(loginUserResultsJson);
-            } catch (e) {
-                appHandler.actions.showAlert(`An error occurred`);
-                console.error(e);
-                return Promise.reject(e);
-            }
-        },
         userInfo: async () => {
             try {
                 const userInfoResults = await fetch(appHandler.helpers.urlBuild(`users/info`), {

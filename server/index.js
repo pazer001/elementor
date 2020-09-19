@@ -3,7 +3,7 @@ const express = require(`express`);
 const bodyParser = require('body-parser');
 const config = require('./config');
 const jwt = require('jsonwebtoken');
-const cors  =   require('cors');
+const cors = require('cors');
 const UserService = require('./services/Users/UserService');
 const PORT = config.server.port;
 
@@ -50,7 +50,8 @@ app.post('/v1/oauth/token', async (req, res) => {
 
 
     try {
-        const result = await userService.loginUser(email, password);
+        const ip = req.connection.remoteAddress;
+        const result = await userService.loginUser(email, password, ip);
         res.json(result);
     } catch (e) {
         res.status(401).json({

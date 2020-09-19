@@ -3,6 +3,7 @@ const pages = [`welcome`, `main`];
 const PROTOCOL = window.PROTOCOL;
 const HOST = window.HOST;
 const VERSION = window.VERSION;
+const ONLINE_USERS_INTERVAL = window.ONLINE_USERS_INTERVAL;
 
 const appHandler = {
     helpers: {
@@ -30,6 +31,12 @@ const appHandler = {
                     const infoElm   =   document.getElementById(`info`)
                     infoElm.classList.add(`show`);
                     infoElm.classList.remove(`hide`);
+
+                    appHandler.actions.onlineUsersInterval();
+                    setInterval(() => {
+                        appHandler.actions.onlineUsersInterval();
+                    }, ONLINE_USERS_INTERVAL)
+
 
             }
         },
@@ -81,7 +88,7 @@ const appHandler = {
             appHandler.actions.hideAlert();
             appHandler.actions.onLoadPageEvent(pageName);
         },
-        showAlert(message) {
+        showAlert: (message) => {
             const alertElm = document.getElementById(`alert`);
             alertElm.innerText = message;
             alertElm.classList.add(`show`);
@@ -89,6 +96,17 @@ const appHandler = {
         hideAlert: () => {
             const alertElm = document.getElementById(`alert`);
             alertElm.classList.add(`hide`);
+        },
+        showPopup: (message) => {
+            const popupElm  =   document.getElementById(`popup`);
+            popupElm.innerText  =   message;
+            popupElm.classList.remove('hide');
+            popupElm.classList.add('show');
+        },
+        hidePopup: () => {
+            const popupElm  =   document.getElementById(`popup`);
+            popupElm.classList.remove('show');
+            popupElm.classList.add('hide');
         },
         createUser: async (email, password) => {
             try {
@@ -135,7 +153,7 @@ const appHandler = {
                 return Promise.reject(e);
             }
         },
-        logoutUser: async (email, password) => {
+        logoutUser: async () => {
             try {
                 const logoutUserResults = await fetch(appHandler.helpers.urlBuild(`users/logout`), {
                     method: `POST`,
@@ -178,6 +196,38 @@ const appHandler = {
                 console.error(e);
                 return Promise.reject(e);
             }
+        },
+        onlineUsers: async () => {
+            try {
+                const onlineUsersResults = await fetch(appHandler.helpers.urlBuild(`users/online`), {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'authorization': `bearer ${localStorage.getItem(`token`)}`
+                    }
+                })
+                const onlineUsersResultsJson = await onlineUsersResults.json();
+                if (onlineUsersResults.status >= 400) {
+                    console.error(onlineUsersResultsJson.message);
+                    appHandler.actions.showAlert(onlineUsersResultsJson.message);
+                    return Promise.reject(onlineUsersResultsJson);
+                }
+                return Promise.resolve(onlineUsersResultsJson);
+            } catch (e) {
+                appHandler.actions.showAlert(`An error occurred`);
+                console.error(e);
+                return Promise.reject(e);
+            }
+        },
+        onlineUsersInterval: async () => {
+                const onlineUsersResultsJson    =   await appHandler.actions.onlineUsers();
+                const onlineUsersTbodyElm   =   document.querySelector(`#online-users tbody`);
+                const tbodyText =   onlineUsersResultsJson.map(user => `<tr>
+                <td>${user.email}</td>
+                <td>${new Date(Number(user.timestamp)).toDateString()}</td>
+                <td>${user.ipAddress}</td>
+            </tr>`)
+                onlineUsersTbodyElm.innerHTML = tbodyText.join(``);
+
         }
     }
 };

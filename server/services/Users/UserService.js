@@ -22,8 +22,8 @@ class UserService {
 
             const session = await getSession
             const row = await session.getSchema('elem').getTable('users')
-                .insert(['email', 'password'])
-                .values([email, password])
+                .insert(['email', 'password', 'role'])
+                .values([email, password, 'Admin'])
                 .execute();
             return Promise.resolve(row.getAffectedItemsCount());
         } catch (e) {
@@ -32,7 +32,7 @@ class UserService {
         }
     }
 
-    async loginUser(email, password) {
+    async loginUser(email, password, ip) {
         try {
             if (!email || !password) {
                 return Promise.reject(false);
@@ -53,11 +53,9 @@ class UserService {
                 role: user[3]
             }
 
-            session.getSchema('elem').getTable('online_users')
-                .insert(['userId'])
-                .values([payload.id])
+            // Yes, it opened for sql-injection
+            await session.sql(`INSERT INTO elem.online_users (userId, ip_address) VALUES (${payload.id}, "${ip}")`)
                 .execute();
-
 
             const token = jwt.sign(payload, config.jwtSecret);
             return Promise.resolve({token});
@@ -74,12 +72,12 @@ class UserService {
     async onlineUsers() {
         try {
             const session = await getSession
-            const results = await session.sql(`SELECT users.email, users.role, online_users.timestamp FROM elem.online_users 
+            const results = await session.sql(`SELECT users.email, users.role, online_users.timestamp, online_users.ip_address FROM elem.online_users 
                                                         JOIN elem.users ON online_users.userId = users.id
                                                         WHERE online_users.timestamp >= NOW() - INTERVAL 20 MINUTE;`)
                 .execute();
 
-            const onlineUsers = results.fetchAll().map(user => ({email: user[0], role: user[1], timestamp: user[2]}));
+            const onlineUsers = results.fetchAll().map(user => ({email: user[0], role: user[1], timestamp: user[2], ipAddress: user[3]}));
 
             return Promise.resolve(onlineUsers);
         } catch (e) {

@@ -93,6 +93,7 @@ app.post('/v1/users/logout', authenticateToken, async (req, res) => {
     }
 });
 
+app.use(express.static('../front'));
 
 app.listen(PORT, () => console.info(`App is listening to port ${PORT}.`))
 

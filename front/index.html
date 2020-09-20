@@ -8,7 +8,12 @@
 <body>
 <main>
     <div id="alert"></div>
-    <div id="popup" class="hide"></div>
+    <div id="popup-wrapper" class="hide">
+        <div id="popup-inner-wrapper">
+            <div id="popup-close" onclick="appHandler.actions.hidePopup()">X</div>
+            <div id="popup-content"></div>
+        </div>
+    </div>
     <section class="page hide" id="welcome">
         <article class="box login-wrapper">
             <h2>Login</h2>

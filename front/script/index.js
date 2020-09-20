@@ -6,6 +6,10 @@ const VERSION = window.VERSION;
 const ONLINE_USERS_INTERVAL = window.ONLINE_USERS_INTERVAL;
 
 const appHandler = {
+    state: {
+        onlineUsers: [],
+        intervals: {}
+    },
     helpers: {
         urlBuild: (path) => {
             return `${PROTOCOL}://${HOST}/${VERSION}/${path}`;
@@ -23,17 +27,21 @@ const appHandler = {
             }
         },
         onLoadPageEvent: async (pageName) => {
+            for(let i in appHandler.state.intervals) {
+                clearInterval(appHandler.state.intervals[i]);
+            }
             switch (pageName) {
                 case `main`:
                     const userInfoResults = await appHandler.actions.userInfo();
                     const userElm = document.getElementById(`user`);
                     userElm.innerText = `Hello ${userInfoResults.email}`;
-                    const infoElm   =   document.getElementById(`info`)
+                    const infoElm = document.getElementById(`info`)
                     infoElm.classList.add(`show`);
                     infoElm.classList.remove(`hide`);
 
                     appHandler.actions.onlineUsersInterval();
-                    setInterval(() => {
+                    clearInterval(appHandler.state.intervals.onlineUsers);
+                    appHandler.state.intervals.onlineUsers = setInterval(() => {
                         appHandler.actions.onlineUsersInterval();
                     }, ONLINE_USERS_INTERVAL)
 
@@ -72,6 +80,11 @@ const appHandler = {
                 await appHandler.actions.logoutUser();
                 appHandler.actions.showPage(`welcome`);
             })
+
+            const userRows = Array.from(document.getElementsByClassName('user-row'));
+            userRows.forEach(elm => {
+                elm.addEventListener('click', appHandler.actions.showUserPopup);
+            })
         },
         showPage: (pageName) => {
             pages.forEach(page => {
@@ -98,13 +111,15 @@ const appHandler = {
             alertElm.classList.add(`hide`);
         },
         showPopup: (message) => {
-            const popupElm  =   document.getElementById(`popup`);
-            popupElm.innerText  =   message;
-            popupElm.classList.remove('hide');
-            popupElm.classList.add('show');
+            const popupWrapperElm = document.getElementById(`popup-wrapper`);
+            popupWrapperElm.classList.remove('hide');
+            popupWrapperElm.classList.add('show');
+
+            const popupContentElm = document.getElementById(`popup-content`);
+            popupContentElm.innerText = message;
         },
         hidePopup: () => {
-            const popupElm  =   document.getElementById(`popup`);
+            const popupElm = document.getElementById(`popup-wrapper`);
             popupElm.classList.remove('show');
             popupElm.classList.add('hide');
         },
@@ -137,7 +152,7 @@ const appHandler = {
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({email, password})
+                    body: JSON.stringify({email, password, userAgent: navigator.userAgent})
                 })
                 const loginUserResultsJson = await loginUserResults.json();
                 if (loginUserResults.status >= 400) {
@@ -213,21 +228,31 @@ const appHandler = {
                 }
                 return Promise.resolve(onlineUsersResultsJson);
             } catch (e) {
-                appHandler.actions.showAlert(`An error occurred`);
+                appHandler.actions.showPage(`name`);
+                clearInterval(appHandler.state.intervals);
                 console.error(e);
                 return Promise.reject(e);
             }
         },
         onlineUsersInterval: async () => {
-                const onlineUsersResultsJson    =   await appHandler.actions.onlineUsers();
-                const onlineUsersTbodyElm   =   document.querySelector(`#online-users tbody`);
-                const tbodyText =   onlineUsersResultsJson.map(user => `<tr>
+            const onlineUsersResultsJson = await appHandler.actions.onlineUsers();
+            appHandler.state.onlineUsers = onlineUsersResultsJson || [];
+            const onlineUsersTbodyElm = document.querySelector(`#online-users tbody`);
+            const tbodyText = onlineUsersResultsJson.map((user, key) => `<tr data-id="${key}" onclick="appHandler.actions.showUserPopup(${key})">
                 <td>${user.email}</td>
                 <td>${new Date(Number(user.timestamp)).toDateString()}</td>
                 <td>${user.ipAddress}</td>
             </tr>`)
-                onlineUsersTbodyElm.innerHTML = tbodyText.join(``);
+            onlineUsersTbodyElm.innerHTML = tbodyText.join(``);
 
+        },
+        showUserPopup(key) {
+            const userInfo = appHandler.state.onlineUsers[key];
+            appHandler.actions.showPopup(`
+                Register time: ${new Date(Number(userInfo.registeredTimestamp)).toDateString()} ${new Date(Number(userInfo.registeredTimestamp)).toTimeString()}
+                User agent: ${userInfo.userAgent}
+                Login count: ${userInfo.loginCount}
+            `)
         }
     }
 };

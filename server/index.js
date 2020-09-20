@@ -47,11 +47,12 @@ app.post('/v1/users', async (req, res) => {
 app.post('/v1/oauth/token', async (req, res) => {
     const email = req.body.email;
     const password = req.body.password;
+    const userAgent = req.body.userAgent;
 
 
     try {
         const ip = req.connection.remoteAddress;
-        const result = await userService.loginUser(email, password, ip);
+        const result = await userService.loginUser(email, password, userAgent, ip);
         res.json(result);
     } catch (e) {
         res.status(401).json({

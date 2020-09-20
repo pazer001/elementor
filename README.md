@@ -1,7 +1,7 @@
 Installation
-* import the db schemes to a mysql 8 server
+* import the db schemes to a mysql 8 server.
 * cd server && node index.js
-* open front/
+* enter "http://localhost:5000"
 
 
 1. it tried to user the new official node mysql 8 connector.

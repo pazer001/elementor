@@ -57,7 +57,7 @@ class UserService {
                 .insert(['userId', 'ip_address', 'user_agent'])
                 .values(payload.id, ip, userAgent)
                 .execute();
-            
+
             await session.executeSql('SET @email = ?;', email).execute()
 
             await session.sql(`UPDATE users SET users.login_count = login_count + 1 WHERE email = @email`)

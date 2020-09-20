@@ -5,7 +5,6 @@ const config = require('../../config');
 const UserService = require('./UserService');
 const userService = new UserService();
 
-
 const email = 'paz@paz.com';
 const password = '3ds21cds3c51';
 
@@ -27,11 +26,11 @@ describe('UserService', () => {
     });
 
     test('loginUser Positive', async () => {
-        expect(await userService.loginUser(email, password)).toHaveProperty('token');
+        expect(await userService.loginUser(email, password, 'test', '127.0.0.1')).toHaveProperty('token');
     });
 
     test('userInfo Positive', async () => {
-        const {token} = await userService.loginUser(email, password)
+        const {token} = await userService.loginUser(email, password, 'test', '127.0.0.1')
         const user = jwt.verify(token, config.jwtSecret)
         const userInfo = userService.userInfo(user);
 
@@ -45,7 +44,7 @@ describe('UserService', () => {
     });
 
     test('logoutUser Positive', async () => {
-        const {token} = await userService.loginUser(email, password);
+        const {token} = await userService.loginUser(email, password, 'test', '127.0.0.1');
         const user = jwt.verify(token, config.jwtSecret)
         const results = await userService.logoutUser(user);
 
